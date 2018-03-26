@@ -4,6 +4,7 @@ import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
 
 /// @title Contract to bet Ether for a number and win randomly when the number of bets is met.
 /// @author Merunas Grincalaitis
+/// @author Peter Jamack .. changing and updating for kafkachain usage
 contract Casino is usingOraclize {
    address owner;
 
@@ -17,11 +18,11 @@ contract Casino is usingOraclize {
    uint public numberOfBets;
 
    // The maximum amount of bets can be made for each game
-   uint public maxAmountOfBets = 10;
+   uint public maxAmountOfBets = 100;
 
    // The max amount of bets that cannot be exceeded to avoid excessive gas consumption
    // when distributing the prizes and restarting the game
-   uint public constant LIMIT_AMOUNT_BETS = 100;
+   uint public constant LIMIT_AMOUNT_BETS = 1000;
 
    // The number that won the last game
    uint public numberWinner;
@@ -75,7 +76,7 @@ contract Casino is usingOraclize {
       assert(checkPlayerExists(msg.sender) == false);
 
       // Check that the number to bet is within the range
-      assert(numberToBet >= 1 && numberToBet <= 10);
+      assert(numberToBet >= 1 && numberToBet <= 100);
 
       // Check that the amount paid is bigger or equal the minimum bet
       assert(msg.value >= minimumBet);
@@ -92,11 +93,11 @@ contract Casino is usingOraclize {
       if(numberOfBets >= maxAmountOfBets) generateNumberWinner();
    }
 
-   /// @notice Generates a random number between 1 and 10 both inclusive.
+   /// @notice Generates a random number between 1 and 100 both inclusive.
    /// Must be payable because oraclize needs gas to generate a random number.
    /// Can only be executed when the game ends.
    function generateNumberWinner() payable onEndGame {
-      uint numberRandomBytes = 7;
+      uint numberRandomBytes = 8;
       uint delay = 0;
       uint callbackGas = 200000;
 
@@ -116,7 +117,7 @@ contract Casino is usingOraclize {
       // Checks that the sender of this callback was in fact oraclize
       assert(msg.sender == oraclize_cbAddress());
 
-      numberWinner = (uint(sha3(_result))%10+1);
+      numberWinner = (uint(sha3(_result))%100+1);
       distributePrizes();
    }
 
@@ -131,7 +132,7 @@ contract Casino is usingOraclize {
       }
 
       // Delete all the players for each number
-      for(uint j = 1; j <= 10; j++){
+      for(uint j = 1; j <= 100; j++){
          numberBetPlayers[j].length = 0;
       }
 
